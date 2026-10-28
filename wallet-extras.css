@@ -1,0 +1,170 @@
+/* Lumvault wallet extras – card flip, hover tilt/sheen/lift, freeze toggle, security activity.
+   Visual design preview only, example data. Designed by dmeneri
+   All new classes are prefixed "wx-" and are added at runtime by wallet-extras.js. */
+
+/* ---------- 1. Card flip + hover (phone cards wrapped by JS) ---------- */
+.wx-flip{position:relative;perspective:1100px;-webkit-tap-highlight-color:transparent;touch-action:manipulation;cursor:pointer;outline:none;border-radius:20px}
+.wx-flip:focus-visible{box-shadow:0 0 0 3px var(--bg),0 0 0 5px var(--teal)}
+.wx-flip-inner{
+  --wx-rx:0deg;--wx-ry:0deg;--wx-lift:0px;--wx-flip:0deg;--wx-mx:50%;--wx-my:50%;
+  position:relative;transform-style:preserve-3d;-webkit-transform-style:preserve-3d;
+  transform:translateY(var(--wx-lift)) rotateX(var(--wx-rx)) rotateY(calc(var(--wx-flip) + var(--wx-ry)));
+  transition:transform .7s cubic-bezier(.2,.75,.25,1.15);will-change:transform}
+.wx-flip.wx-tilting .wx-flip-inner{transition:transform .14s ease-out}
+.wx-flip.wx-flipping .wx-flip-inner{transition:transform .7s cubic-bezier(.2,.75,.25,1.15)}
+.wx-flip.is-flipped .wx-flip-inner{--wx-flip:180deg}
+.wx-flip .wx-face{backface-visibility:hidden;-webkit-backface-visibility:hidden;margin:0;transition:box-shadow .3s ease}
+.wx-flip .wx-back{position:absolute;inset:0;transform:rotateY(180deg)}
+@media (hover:hover){
+  .wx-flip:hover .wx-flip-inner{--wx-lift:-6px}
+  .wx-flip:hover .wx-face{box-shadow:0 28px 50px rgba(0,0,0,.45),0 6px 14px rgba(0,0,0,.3),0 0 0 1px rgba(255,255,255,.08)}
+}
+.wx-flip:active .wx-flip-inner{--wx-lift:-2px}
+
+/* sheen that follows the pointer (both faces + hero cards) */
+.wx-sheen{position:absolute;inset:0;border-radius:inherit;pointer-events:none;z-index:2;opacity:0;transition:opacity .35s ease;
+  background:radial-gradient(circle at var(--wx-mx,50%) var(--wx-my,50%),rgba(255,255,255,.38),rgba(255,255,255,.08) 28%,transparent 55%);
+  mix-blend-mode:soft-light}
+.wx-sheen::after{content:"";position:absolute;inset:0;border-radius:inherit;
+  background:linear-gradient(105deg,transparent 35%,rgba(255,255,255,.16) 47%,rgba(255,255,255,.05) 52%,transparent 62%);
+  background-size:250% 100%;background-position:var(--wx-mx,50%) 0;mix-blend-mode:overlay}
+.wx-flip:hover .wx-sheen,.wx-flip:focus-visible .wx-sheen,.wx-tilt-on:hover .wx-sheen{opacity:1}
+
+/* flip hint */
+.wx-hint{position:absolute;left:50%;top:50%;z-index:3;transform:translate(-50%,-50%) scale(.92);pointer-events:none;
+  font-size:11px;font-weight:700;letter-spacing:.3px;padding:5px 10px;border-radius:999px;white-space:nowrap;
+  background:rgba(7,13,31,.62);color:#fff;border:1px solid rgba(255,255,255,.18);backdrop-filter:blur(6px);opacity:0;transition:opacity .25s,transform .25s}
+.wx-flip:hover .wx-hint,.wx-flip:focus-visible .wx-hint{opacity:1;transform:translate(-50%,-50%) scale(1)}
+@media (hover:none){.wx-flip:not(.wx-used) .wx-hint{opacity:.9;transform:translate(-50%,-50%) scale(1);animation:wxHintFade 3.4s 1.2s ease forwards}}
+@keyframes wxHintFade{to{opacity:0}}
+.wx-flip .card.wx-frozen .wx-hint{display:none}
+
+/* card back */
+.wx-back{padding:0!important;display:flex;flex-direction:column}
+.wx-back .wx-stripe{height:22%;margin-top:9%;background:linear-gradient(180deg,#0b0f1c,#1d2233 60%,#0b0f1c)}
+.wx-back .wx-sig{display:flex;align-items:center;gap:10px;margin:7% 18px 0}
+.wx-back .wx-sig-strip{flex:1;height:30px;border-radius:5px;display:flex;align-items:center;padding:0 10px;font:italic 600 12px/1 "Segoe Script","Brush Script MT",cursive;color:#384160;
+  background:repeating-linear-gradient(135deg,#f5f1e6 0 6px,#ebe5d4 6px 12px)}
+.wx-back .wx-cvv{font-family:"SF Mono",Menlo,Consolas,monospace;font-size:13px;letter-spacing:2px;padding:6px 9px;border-radius:5px;background:#fff;color:#1b2140;font-weight:700}
+.wx-back .wx-cvv small{display:block;font:700 8px/1 Inter,system-ui,sans-serif;letter-spacing:.6px;color:#6b7394;margin-bottom:2px}
+.wx-back .wx-back-foot{margin:auto 18px 14px;display:flex;justify-content:space-between;align-items:flex-end;gap:10px;font-size:10.5px;opacity:.9}
+.wx-back .wx-back-foot b{display:block;font-size:12px}
+.wx-back .wx-back-tag{font-size:10px;font-weight:700;padding:3px 8px;border-radius:999px;background:rgba(7,13,31,.4);border:1px solid rgba(255,255,255,.22);white-space:nowrap}
+
+/* hero floating cards: tilt + lift that keeps the original rotation */
+.float-card.wx-tilt-on{--wx-rx:0deg;--wx-ry:0deg;--wx-lift:0px;--wx-s:1;transition:transform .5s cubic-bezier(.2,.75,.25,1.15),box-shadow .3s;cursor:default}
+.float-card.one.wx-tilt-on{transform:rotate(-8deg) perspective(900px) translateY(var(--wx-lift)) rotateX(var(--wx-rx)) rotateY(var(--wx-ry)) scale(var(--wx-s))}
+.float-card.two.wx-tilt-on{transform:rotate(6deg) perspective(900px) translateY(var(--wx-lift)) rotateX(var(--wx-rx)) rotateY(var(--wx-ry)) scale(var(--wx-s))}
+.float-card.wx-tilt-on.wx-tilting{transition:transform .14s ease-out,box-shadow .3s}
+@media (hover:hover){.float-card.wx-tilt-on:hover{--wx-lift:-8px;--wx-s:1.03;z-index:4;box-shadow:0 30px 60px rgba(0,0,0,.5),0 8px 18px rgba(0,0,0,.3)}}
+
+/* mini cards: small lift */
+.mini-card{transition:transform .25s ease,box-shadow .25s ease,filter .4s ease}
+@media (hover:hover){.list-row:hover .mini-card{transform:translateY(-2px) rotate(-2deg);box-shadow:0 8px 16px rgba(0,0,0,.35)}}
+
+/* ---------- 2. Freeze / lock (visual only) ---------- */
+.wx-ice{position:absolute;inset:0;z-index:1;border-radius:inherit;pointer-events:none;display:grid;place-items:center;overflow:hidden;
+  background:
+    radial-gradient(120px 60px at 12% 18%,rgba(255,255,255,.45),transparent 70%),
+    radial-gradient(140px 70px at 88% 86%,rgba(255,255,255,.35),transparent 70%),
+    repeating-linear-gradient(62deg,rgba(255,255,255,.10) 0 1px,transparent 1px 13px),
+    repeating-linear-gradient(-58deg,rgba(255,255,255,.08) 0 1px,transparent 1px 17px),
+    linear-gradient(140deg,rgba(190,225,255,.55),rgba(120,170,235,.38) 50%,rgba(210,235,255,.5));
+  -webkit-backdrop-filter:blur(2.5px) saturate(.35) brightness(.92);backdrop-filter:blur(2.5px) saturate(.35) brightness(.92);
+  box-shadow:inset 0 0 0 1px rgba(255,255,255,.45),inset 0 0 26px rgba(255,255,255,.35);
+  opacity:0;clip-path:circle(0% at 0% 0%);transition:clip-path .75s cubic-bezier(.3,.7,.2,1),opacity .4s ease}
+.card.wx-frozen .wx-ice{opacity:1;clip-path:circle(150% at 0% 0%)}
+.wx-ice .wx-flakes{position:absolute;inset:0;width:100%;height:100%;opacity:.75}
+.wx-ice .wx-flakes path{stroke:#fff;stroke-width:1.2;fill:none;stroke-linecap:round}
+.card.wx-frozen .wx-flakes{animation:wxDrift 9s ease-in-out infinite alternate}
+@keyframes wxDrift{to{transform:translate(-4px,3px) rotate(1.5deg)}}
+.wx-ice-badge{position:relative;display:flex;align-items:center;gap:8px;padding:7px 13px 7px 9px;border-radius:999px;
+  background:rgba(7,13,31,.72);color:#fff;font-size:12px;font-weight:700;border:1px solid rgba(160,200,255,.45);
+  box-shadow:0 8px 20px rgba(0,0,0,.35);transform:scale(.6);opacity:0;transition:transform .45s .25s cubic-bezier(.3,1.6,.5,1),opacity .3s .25s}
+.card.wx-frozen .wx-ice-badge{transform:scale(1);opacity:1}
+.wx-padlock{width:20px;height:20px;overflow:visible}
+.wx-padlock .wx-body{fill:#9fc6ff}
+.wx-padlock .wx-hole{fill:#0a1430}
+.wx-padlock .wx-shackle{fill:none;stroke:#cfe3ff;stroke-width:2.4;stroke-linecap:round;transform-box:view-box;transform-origin:16.5px 11px;
+  transform:translateY(-3px) rotate(28deg);transition:transform .45s .55s cubic-bezier(.3,1.7,.5,1)}
+.card.wx-frozen .wx-padlock .wx-shackle{transform:none}
+.card.wx-frozen.wx-just-frozen{animation:wxShiver .5s .9s ease}
+@keyframes wxShiver{20%{translate:-2px 0}40%{translate:2px 0}60%{translate:-1px 0}80%{translate:1px 0}}
+.card.wx-thawing .wx-ice{transition:clip-path .6s ease .1s,opacity .6s ease;clip-path:circle(0% at 100% 100%)}
+
+/* toggle switch with padlock knob (the existing .toggle stays the visual) */
+.toggle.wx-lock{cursor:pointer;touch-action:manipulation;-webkit-tap-highlight-color:transparent;outline:none;transition:background .35s ease,box-shadow .35s ease}
+.toggle.wx-lock:focus-visible{box-shadow:0 0 0 2px var(--bg),0 0 0 4px var(--teal)}
+.toggle.wx-lock:not(.on){background:linear-gradient(135deg,rgba(160,200,255,.35),rgba(120,160,230,.22));border-color:rgba(160,200,255,.45);
+  box-shadow:inset 0 0 8px rgba(200,230,255,.35)}
+.toggle.wx-lock:not(.on)::after{background:#e9f3ff}
+.toggle.wx-lock .wx-knob{position:absolute;z-index:1;top:2px;left:2px;width:20px;height:20px;display:grid;place-items:center;pointer-events:none;transition:left .2s}
+.toggle.wx-lock.on .wx-knob{left:22px}
+.toggle.wx-lock .wx-knob svg{width:12px;height:12px;overflow:visible}
+.toggle.wx-lock .wx-knob .wx-body{fill:#5b6a96}
+.toggle.wx-lock .wx-knob .wx-shackle{fill:none;stroke:#5b6a96;stroke-width:2.6;stroke-linecap:round;transform-box:view-box;transform-origin:16.5px 11px;transition:transform .35s cubic-bezier(.3,1.7,.5,1)}
+.toggle.wx-lock.on .wx-knob .wx-shackle{transform:translateY(-3px) rotate(28deg)}
+.toggle.wx-lock.on .wx-knob .wx-body,.toggle.wx-lock.on .wx-knob .wx-shackle{fill:#7c64f0;stroke:#7c64f0}
+.toggle.wx-lock.on .wx-knob .wx-shackle{fill:none}
+.toggle.wx-lock:not(.on) .wx-knob .wx-body{fill:#4f86d9}.toggle.wx-lock:not(.on) .wx-knob .wx-shackle{stroke:#4f86d9}
+.toggle.wx-lock.wx-pop .wx-knob{animation:wxPop .35s ease}
+@keyframes wxPop{50%{transform:scale(1.25)}}
+
+/* list-row states */
+.mini-card.wx-frozen{filter:saturate(.3) brightness(.9);position:relative}
+.mini-card.wx-is-active{filter:none!important}
+.mini-card.wx-frozen::after{content:"❄";position:absolute;inset:0;display:grid;place-items:center;font-size:15px;color:#fff;border-radius:inherit;
+  background:linear-gradient(140deg,rgba(190,225,255,.55),rgba(120,170,235,.3));box-shadow:inset 0 0 0 1px rgba(255,255,255,.4);animation:wxIn .4s ease}
+.mini-card{position:relative}
+@keyframes wxIn{from{opacity:0;transform:scale(.8)}}
+.status.wx-swap{animation:wxIn .3s ease}
+
+/* Freeze action button on the card detail screen */
+.action.wx-act{cursor:pointer;touch-action:manipulation;-webkit-tap-highlight-color:transparent;outline:none;border-radius:14px;transition:color .25s}
+.action.wx-act:focus-visible .icon{box-shadow:0 0 0 2px var(--bg),0 0 0 4px var(--teal)}
+.action.wx-act .icon{transition:transform .25s ease,background .3s ease,border-color .3s}
+@media (hover:hover){.action.wx-act:hover .icon{transform:translateY(-2px)}}
+.action.wx-act:active .icon{transform:scale(.94)}
+.action.wx-act.is-on{color:#9fc6ff}
+.action.wx-act.is-on .icon{background:linear-gradient(135deg,rgba(160,200,255,.35),rgba(120,160,230,.25));border-color:rgba(160,200,255,.55)}
+.action.wx-act.is-on .icon svg{stroke:#cfe3ff;animation:wxSpin .7s ease}
+@keyframes wxSpin{from{transform:rotate(-90deg) scale(.7)}}
+
+/* ---------- 3. Security activity (example data) ---------- */
+.wx-tight{padding-top:4px;padding-bottom:4px}
+.wx-act-row .wx-ic{flex:none;width:36px;height:36px;border-radius:12px;display:grid;place-items:center;border:1px solid var(--line);
+  background:linear-gradient(135deg,rgba(46,230,197,.18),rgba(139,108,255,.22))}
+.wx-act-row .wx-ic svg{width:18px;height:18px;stroke:var(--teal);fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.wx-act-row.wx-k-warn .wx-ic{background:rgba(255,196,107,.14);border-color:rgba(255,196,107,.35)}
+.wx-act-row.wx-k-warn .wx-ic svg{stroke:var(--amber)}
+.wx-act-row.wx-k-ice .wx-ic{background:rgba(160,200,255,.15);border-color:rgba(160,200,255,.35)}
+.wx-act-row.wx-k-ice .wx-ic svg{stroke:#9fc6ff}
+.wx-act-row.wx-k-key .wx-ic svg{stroke:var(--purple)}
+.wx-act-row .t{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.wx-act-time{flex:none;font-size:11.5px;color:var(--muted);white-space:nowrap;align-self:flex-start;padding-top:2px}
+.wx-st-warn{background:rgba(255,196,107,.15);color:var(--amber)}
+.wx-act-note{font-size:11px;color:var(--muted);text-align:center;padding:8px 0 6px}
+.wx-act-row.wx-new{animation:wxRowIn .5s cubic-bezier(.2,.8,.3,1)}
+@keyframes wxRowIn{from{opacity:0;transform:translateY(-8px)}}
+.wx-activity.wx-reveal .wx-act-row{opacity:0;transform:translateY(8px);transition:opacity .45s ease,transform .45s ease}
+.wx-activity.wx-reveal.wx-in .wx-act-row{opacity:1;transform:none}
+.wx-activity.wx-in .wx-act-row:nth-child(2){transition-delay:.06s}
+.wx-activity.wx-in .wx-act-row:nth-child(3){transition-delay:.12s}
+.wx-activity.wx-in .wx-act-row:nth-child(4){transition-delay:.18s}
+.wx-activity.wx-in .wx-act-row:nth-child(5){transition-delay:.24s}
+.wx-activity.wx-in .wx-act-row:nth-child(6){transition-delay:.30s}
+
+.wx-sr{position:absolute!important;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0}
+
+/* ---------- reduced motion ---------- */
+@media (prefers-reduced-motion:reduce){
+  .wx-flip-inner,.wx-flip.wx-flipping .wx-flip-inner,.float-card.wx-tilt-on,.wx-ice,.wx-ice-badge,.wx-padlock .wx-shackle,
+  .toggle.wx-lock,.toggle.wx-lock .wx-knob,.toggle.wx-lock .wx-knob .wx-shackle,.mini-card,.action.wx-act .icon,.wx-sheen,.wx-hint,
+  .wx-activity.wx-reveal .wx-act-row{transition:opacity .2s linear!important;animation:none!important}
+  .wx-flip.is-flipped .wx-flip-inner{transition:none!important}
+  .wx-flip .wx-flip-inner,.wx-flip:hover .wx-flip-inner{--wx-lift:0px;--wx-rx:0deg;--wx-ry:0deg}
+  .float-card.wx-tilt-on:hover{--wx-lift:0px;--wx-s:1}
+  .card.wx-frozen .wx-flakes,.card.wx-frozen.wx-just-frozen,.mini-card.wx-frozen::after,.status.wx-swap,.wx-act-row.wx-new,.toggle.wx-lock.wx-pop .wx-knob,.action.wx-act.is-on .icon svg{animation:none!important}
+  .wx-ice{clip-path:none!important}
+  .wx-activity.wx-reveal .wx-act-row{opacity:1;transform:none}
+}

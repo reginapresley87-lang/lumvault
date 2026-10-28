@@ -1,0 +1,90 @@
+{
+  "note": "Example data only. Design preview.",
+  "credit": "Designed by dmeneri",
+  "samples": [
+    {
+      "id": "essay",
+      "title": "Essay paragraph",
+      "icon": "📝",
+      "output": "Rainforests are often called the lungs of the planet. Their dense trees take in carbon dioxide and release the oxygen that every living thing depends on. Losing them means more than losing trees: it means losing homes for millions of species and a natural shield against climate change. Protecting rainforests is protecting our own future."
+    },
+    {
+      "id": "email",
+      "title": "Email",
+      "icon": "✉️",
+      "output": {
+        "subject": "Quick update on Friday's project",
+        "body": "Hi Sam,\n\nJust letting you know the poster designs are finished and saved in our shared folder. Could you take a look before Friday and tell me if anything needs changing?\n\nThanks so much!\nAlex"
+      }
+    },
+    {
+      "id": "slides",
+      "title": "5-slide outline",
+      "icon": "📊",
+      "output": [
+        {"slide": 1, "title": "Why Recycling Matters", "points": ["The waste problem in one picture"]},
+        {"slide": 2, "title": "What Can Be Recycled", "points": ["Paper", "Plastic bottles", "Cans", "Glass"]},
+        {"slide": 3, "title": "Where It Goes", "points": ["Collection", "Sorting", "Made into new things"]},
+        {"slide": 4, "title": "Easy Habits", "points": ["Rinse containers", "Use the right bin", "Reuse bags"]},
+        {"slide": 5, "title": "Our Challenge", "points": ["Recycle more this month", "Questions?"]}
+      ]
+    },
+    {
+      "id": "budget",
+      "title": "Weekly budget",
+      "icon": "💰",
+      "output": {
+        "currency": "$",
+        "columns": ["Category", "Planned", "Spent"],
+        "rows": [
+          ["Groceries", 80, 72],
+          ["Transport", 30, 25],
+          ["Fun", 40, 45],
+          ["Savings", 50, 50]
+        ],
+        "total": ["Total", 200, 192],
+        "tip": "You're $8 under budget this week. Nice work! 🎉"
+      }
+    },
+    {
+      "id": "schedule",
+      "title": "To-do schedule",
+      "icon": "🗓️",
+      "output": [
+        {"time": "8:00 AM", "task": "Breakfast and a quick walk", "done": true},
+        {"time": "9:30 AM", "task": "Finish the science homework", "done": true},
+        {"time": "12:00 PM", "task": "Lunch with friends", "done": false},
+        {"time": "2:00 PM", "task": "Practise guitar for 30 minutes", "done": false},
+        {"time": "5:00 PM", "task": "Tidy the room", "done": false},
+        {"time": "8:00 PM", "task": "Read one chapter", "done": false}
+      ]
+    },
+    {
+      "id": "translation",
+      "title": "Translation",
+      "icon": "🌍",
+      "output": {
+        "from": "English",
+        "to": "Spanish",
+        "before": "Good morning! Would you like to go to the park with me today?",
+        "after": "¡Buenos días! ¿Te gustaría ir al parque conmigo hoy?"
+      }
+    },
+    {
+      "id": "story",
+      "title": "Short story",
+      "icon": "📖",
+      "output": "Every night, a tiny star named Pip watched the town below. One evening a little girl looked up and waved. Pip was so happy that it glowed twice as bright, lighting her whole street. From then on, whenever she felt lonely, she'd look for the brightest star and know that someone up there was waving back."
+    },
+    {
+      "id": "grammar",
+      "title": "Grammar fix",
+      "icon": "✅",
+      "output": {
+        "before": "me and my freind goes to the libary every tuesdays, its are favorite place.",
+        "after": "My friend and I go to the library every Tuesday. It's our favourite place.",
+        "fixes": ["\"Me and my friend\" → \"My friend and I\"", "goes → go", "freind → friend", "libary → library", "every tuesdays → every Tuesday", "its are → It's our"]
+      }
+    }
+  ]
+}
